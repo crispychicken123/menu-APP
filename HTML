@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crispy Chicken UAE | Premium Menu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #FEFEFE;
+      --bg-alt: #FFFDE7;
+      --fg: #2D2A24;
+      --muted: #7A756A;
+      --accent: #FFC107;
+      --accent-dark: #FFA000;
+      --brand-red: #D32F2F;
+      --card: #FFFFFF;
+      --border: #F0EBD8;
+      --success: #2E7D32;
+      --shadow-sm: 0 2px 8px rgba(45, 42, 36, 0.06);
+      --shadow-md: 0 8px 24px rgba(45, 42, 36, 0.08);
+      --shadow-lg: 0 16px 48px rgba(45, 42, 36, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    [dir="rtl"] { 
+      direction: rtl; 
+      text-align: right; 
+      font-family: 'IBM Plex Sans Arabic', 'Outfit', sans-serif;
+    }
+    [dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    [dir="rtl"] .cart-drawer { right: auto; left: 0; transform: translateX(-100%); }
+    [dir="rtl"] .cart-drawer.open { transform: translateX(0); }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-slide-up {
+      animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      opacity: 0;
+    }
+
+    .stagger-1 { animation-delay: 0.05s; }
+    .stagger-2 { animation-delay: 0.1s; }
+    .stagger-3 { animation-delay: 0.15s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .slider-track {
+      display: flex;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cart-drawer {
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .cart-drawer.open { transform: translateX(0); }
+
+    .menu-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .menu-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+      color: #5b2d00;
+      box-shadow: 0 4px 16px rgba(255, 193, 7, 0.3);
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+    }
+    
+    .btn-red {
+      background: linear-gradient(135deg, var(--brand-red) 0%, #B71C1C 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(211, 47, 47, 0.3);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #5b2d00;
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    }
+
+    .badge-hot {
+      background: linear-gradient(135deg, #FF6B35 0%, var(--brand-red) 100%);
+      color: white;
+    }
+    
+    .price-tag {
+      background: linear-gradient(135deg, var(--bg-alt) 0%, #FFF8E1 100%);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .qty-btn:hover {
+      background: var(--accent);
+      color: #5b2d00;
+    }
+
+    .hide-scroll::-webkit-scrollbar { display: none; }
+    .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Edit Mode Styles */
+    .edit-mode-active .menu-card {
+      border: 2px dashed var(--accent);
+    }
+    .edit-mode-active .food-img {
+      cursor: pointer;
+      opacity: 0.8;
+    }
+    .edit-mode-active .food-img:hover {
+      opacity: 0.6;
+      outline: 3px solid var(--brand-red);
+    }
+    .edit-btn-active {
+      background: var(--brand-red) !important;
+      color: white !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-[var(--border)]">
+    <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <!-- Logo -->
+      <a href="https://crispychicken-uae.com" class="flex items-center gap-2">
+        <img src="https://z-cdn-media.chatglm.cn/files/78e4dc6f-85ed-443f-b95f-f1ebad3dc268.png?auth_key=1879920312-324adea204f245bba304033ab1e33ffe-0-9d4f0054ce1caf52b2935400198c4d61" alt="Crispy Chicken Logo" class="h-10 w-auto object-contain">
+      </a>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2">
+        <!-- Edit Mode Toggle (Admin Feature) -->
+        <button id="editModeBtn" class="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors" title="Toggle Edit Mode">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+          </svg>
+        </button>
+
+        <!-- Language Toggle -->
+        <button id="langToggle" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-alt)] text-sm font-medium hover:bg-[var(--border)] transition-colors">
+          <span id="langLabel">عربي</span>
+        </button>
+
+        <!-- Cart Button -->
+        <button id="cartBtn" class="relative p-2.5 rounded-xl btn-primary" aria-label="Cart">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+          <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--brand-red)] text-white text-xs font-bold flex items-center justify-center hidden">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-2xl mx-auto px-4 pb-32">
+
+    <!-- Hero Section -->
+    <section class="pt-4 pb-2">
+      <div class="relative bg-gradient-to-br from-[var(--accent)] via-[var(--accent-dark)] to-orange-500 rounded-3xl p-5 overflow-hidden shadow-lg">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        
+        <div class="relative flex items-center gap-4">
+          <div class="flex-1">
+            <h1 class="text-2xl font-extrabold text-white mb-1 drop-shadow-sm" data-en="Hot & Crispy" data-ar="ساخن ومقرمش">Hot & Crispy</h1>
+            <p class="text-white/90 text-sm font-medium" data-en="Freshly fried, delivered fast" data-ar="طازج ومقلية، توصيل سريع">Freshly fried, delivered fast</p>
+            <div class="flex gap-2 mt-3">
+              <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs font-bold text-white" data-en="Free Delivery" data-ar="توصيل مجاني">Free Delivery</span>
+              <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs font-bold text-white">25-35 min</span>
+            </div>
+          </div>
+          <div class="w-28 h-28 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 border-2 border-white/20">
+            <img src="https://images.unsplash.com/photo-1626645738196-c2a72c7d6e5a?w=200&q=80" alt="Crispy Chicken" class="w-full h-full object-cover">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Buttons -->
+    <section class="py-4">
+      <div class="grid grid-cols-2 gap-3">
+        <a href="tel:600527488" class="flex items-center justify-center gap-2 py-3.5 rounded-2xl btn-red font-semibold text-sm shadow-md hover:shadow-lg transition-shadow">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+          </svg>
+          <span>600 527 488</span>
+        </a>
+        <!-- Updated WhatsApp Number -->
+        <a href="https://wa.me/971501882206" class="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-[#25D366] text-white font-semibold text-sm shadow-md hover:shadow-lg transition-shadow">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          <span data-en="WhatsApp" data-ar="واتساب">WhatsApp</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Categories Tabs -->
+    <section class="py-3 sticky top-14 z-40 -mx-4 px-4 bg-[var(--bg)]/95 backdrop-blur-lg">
+      <div id="categoryTabs" class="flex gap-2 overflow-x-auto hide-scroll pb-2"></div>
+    </section>
+
+    <!-- Menu Items -->
+    <section id="menuSection" class="py-3 space-y-3"></section>
+
+    <!-- Branches Section -->
+    <section id="branchesSection" class="py-3 hidden">
+      <h2 class="font-bold text-lg mb-4" data-en="Our Branches" data-ar="فروعنا">Our Branches</h2>
+      <div id="branchesList" class="space-y-3"></div>
+    </section>
+
+  </main>
+
+  <!-- Cart Drawer -->
+  <div id="cartOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity"></div>
+  <aside id="cartDrawer" class="cart-drawer fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 flex flex-col shadow-2xl">
+    <div class="p-4 border-b border-[var(--border)] flex items-center justify-between">
+      <h3 class="font-bold text-lg" data-en="Your Order" data-ar="طلبك">Your Order</h3>
+      <button id="closeCart" class="p-2 rounded-lg hover:bg-[var(--bg-alt)] transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div id="cartItems" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+    
+    <div id="emptyCart" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+      <div class="w-20 h-20 rounded-full bg-[var(--bg-alt)] flex items-center justify-center mb-4">
+        <svg class="w-10 h-10 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+        </svg>
+      </div>
+      <p class="font-semibold mb-1" data-en="Your cart is empty" data-ar="السلة فارغة">Your cart is empty</p>
+      <p class="text-sm text-[var(--muted)]" data-en="Add some crispy items!" data-ar="أضف بعض الأطباق!">Add some crispy items!</p>
+    </div>
+
+    <!-- Summary -->
+    <div id="cartSummary" class="p-4 border-t border-[var(--border)] hidden">
+      <div class="flex justify-between text-sm mb-2">
+        <span class="text-[var(--muted)]" data-en="Subtotal" data-ar="المجموع الفرعي">Subtotal</span>
+        <span id="subtotal">0 AED</span>
+      </div>
+      <div class="flex justify-between font-bold text-lg pt-3 border-t border-[var(--border)]">
+        <span data-en="Total" data-ar="الإجمالي">Total</span>
+        <span id="totalPrice" class="text-[var(--brand-red)]">0 AED</span>
+      </div>
+      <button id="checkoutBtn" class="w-full btn-primary py-3.5 rounded-xl font-semibold mt-4 flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        <span data-en="Order via WhatsApp" data-ar="اطلب عبر واتساب">Order via WhatsApp</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Floating Order Button -->
+  <button id="floatingOrder" class="fixed bottom-6 left-1/2 -translate-x-1/2 btn-primary px-8 py-4 rounded-2xl font-bold text-base shadow-lg z-40 hidden items-center gap-2">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+    </svg>
+    <span id="floatingText">0 items - 0 AED</span>
+  </button>
+
+  <!-- Toast -->
+  <div id="toastContainer" class="fixed bottom-28 left-1/2 -translate-x-1/2 z-50"></div>
+
+  <script>
+    // ==================== DATA ====================
+    const categories = [
+      { id: "deals", name_en: "Deals", name_ar: "العروض", emoji: "🔥" },
+      { id: "family", name_en: "Family Meals", name_ar: "وجبات عائلية", emoji: "👨‍👩‍👧‍👦" },
+      { id: "chicken", name_en: "Chicken", name_ar: "دجاج", emoji: "🍗" },
+      { id: "sandwiches", name_en: "Sandwiches", name_ar: "سندويشات", emoji: "🍔" },
+      { id: "snacks", name_en: "Snacks", name_ar: "سناكس", emoji: "🍟" },
+      { id: "branches", name_en: "Branches", name_ar: "الفروع", emoji: "📍" }
+    ];
+
+    const menuItems = [
+      { id: 1, name_en: "Daily Meal", name_ar: "وجبة اليوم", desc_en: "4 pcs chicken, fries, bun, garlic sauce", desc_ar: "٤ قطع دجاج، بطاطس، خبز، صوص ثوم", price: 16, category: "deals", image: "https://images.unsplash.com/photo-1626645738196-c2a72c7d6e5a?w=400&q=80", badge: "best" },
+      { id: 2, name_en: "Daily Offer", name_ar: "عرض اليوم", desc_en: "8 pcs chicken, 2 fries, 2 garlic sauces", desc_ar: "٨ قطع دجاج، ٢ بطاطس، ٢ صوص ثوم", price: 33, category: "deals", image: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400&q=80", badge: "hot" },
+      { id: 3, name_en: "Mega Meal", name_ar: "ميجا ميل", desc_en: "20 pcs chicken, family fries, Pepsi, salad, buns", desc_ar: "٢٠ قطعة دجاج، بطاطس عائلية، بيبسي، سلطة، خبز", price: 105, category: "family", image: "https://images.unsplash.com/photo-1513639776629-7b61b0ac49cb?w=400&q=80" },
+      { id: 4, name_en: "Bucket Meal", name_ar: "باكيت ميل", desc_en: "8 pcs chicken, 8 strips, fries, Pepsi", desc_ar: "٨ قطع دجاج، ٨ ستربس، بطاطس، بيبسي", price: 55, category: "family", image: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&q=80" },
+      { id: 5, name_en: "Crispy Chicken (2 pcs)", name_ar: "دجاج مقرمش (٢ قطع)", desc_en: "Signature crispy fried chicken", desc_ar: "دجاج مقرمش مميز", price: 8, category: "chicken", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=400&q=80" },
+      { id: 6, name_en: "Crispy Strips (6 pcs)", name_ar: "ستربس مقرمش (٦ قطع)", desc_en: "Crispy chicken strips with dipping sauce", desc_ar: "ستربس دجاج مقرمش مع صوص", price: 18, category: "chicken", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=400&q=80", badge: "hot" },
+      { id: 7, name_en: "Supreme Sandwich", name_ar: "ساندويتش سوبريم", desc_en: "Premium crispy chicken sandwich", desc_ar: "ساندويتش دجاج مقرمش فاخر", price: 7, category: "sandwiches", image: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400&q=80" },
+      { id: 8, name_en: "Maxi Combo", name_ar: "ماكسي كومبو", desc_en: "Sandwich, fries, and Pepsi", desc_ar: "ساندويتش، بطاطس، بيبسي", price: 15, category: "sandwiches", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80" },
+      { id: 9, name_en: "Snack Box", name_ar: "سناك بوكس", desc_en: "2 pcs chicken, fries, Pepsi, bun", desc_ar: "٢ قطع دجاج، بطاطس، بيبسي، خبز", price: 15, category: "snacks", image: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&q=80" },
+      { id: 10, name_en: "Fries (Large)", name_ar: "بطاطس (كبير)", desc_en: "Crispy golden fries", desc_ar: "بطاطس ذهبية مقرمشة", price: 8, category: "snacks", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=80" }
+    ];
+
+    const branches = [
+      { name_en: "Al Markaziya", name_ar: "المركزية", url: "https://almarkaziya.crispychicken-uae.com/", area_en: "Abu Dhabi", area_ar: "أبوظبي" },
+      { name_en: "Al Khalidiyah", name_ar: "الخالدية", url: "https://alkhalidiyah.crispychicken-uae.com/", area_en: "Abu Dhabi", area_ar: "أبوظبي" },
+      { name_en: "Al Muroor Road", name_ar: "طريق المروة", url: "https://almuroorroad.crispychicken-uae.com/", area_en: "Abu Dhabi", area_ar: "أبوظبي" },
+      { name_en: "Electra", name_ar: "الإلكترا", url: "https://electra.crispychicken-uae.com/", area_en: "Abu Dhabi", area_ar: "أبوظبي" },
+      { name_en: "Al Barsha", name_ar: "البرشاء", url: "https://albarsha.crispychicken-uae.com/", area_en: "Dubai", area_ar: "دبي" },
+      { name_en: "Satwa", name_ar: "الصفا", url: "https://satwa.crispychicken-uae.com/", area_en: "Dubai", area_ar: "دبي" }
+    ];
+
+    // ==================== STATE ====================
+    let cart = [];
+    let currentLang = "en";
+    let currentCategory = "deals";
+    let isEditMode = false;
+
+    // ==================== DOM ====================
+    const body = document.body;
+    const langToggle = document.getElementById("langToggle");
+    const langLabel = document.getElementById("langLabel");
+    const categoryTabs = document.getElementById("categoryTabs");
+    const menuSection = document.getElementById("menuSection");
+    const branchesSection = document.getElementById("branchesSection");
+    const branchesList = document.getElementById("branchesList");
+    const cartBtn = document.getElementById("cartBtn");
+    const cartDrawer = document.getElementById("cartDrawer");
+    const cartOverlay = document.getElementById("cartOverlay");
+    const closeCart = document.getElementById("closeCart");
+    const cartItems = document.getElementById("cartItems");
+    const emptyCart = document.getElementById("emptyCart");
+    const cartSummary = document.getElementById("cartSummary");
+    const cartCount = document.getElementById("cartCount");
+    const subtotal = document.getElementById("subtotal");
+    const totalPrice = document.getElementById("totalPrice");
+    const checkoutBtn = document.getElementById("checkoutBtn");
+    const floatingOrder = document.getElementById("floatingOrder");
+    const floatingText = document.getElementById("floatingText");
+    const toastContainer = document.getElementById("toastContainer");
+    const editModeBtn = document.getElementById("editModeBtn");
+
+    // ==================== UTILITIES ====================
+    function t(key) {
+      return currentLang === "ar" ? key + "_ar" : key + "_en";
+    }
+
+    function showToast(msg, type = "success") {
+      const toast = document.createElement("div");
+      toast.className = `px-5 py-3 rounded-xl text-sm font-medium animate-slide-up shadow-lg ${type === "success" ? "bg-[var(--success)] text-white" : "bg-[var(--brand-red)] text-white"}`;
+      toast.textContent = msg;
+      toastContainer.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 200); }, 2500);
+    }
+
+    // ==================== LANGUAGE ====================
+    function updateLang() {
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
+      langLabel.textContent = currentLang === "en" ? "عربي" : "English";
+      
+      document.querySelectorAll("[data-en]").forEach(el => el.textContent = el.getAttribute(`data-${currentLang}`));
+      
+      renderCategories();
+      renderMenu();
+      renderBranches();
+    }
+
+    langToggle.addEventListener("click", () => {
+      currentLang = currentLang === "en" ? "ar" : "en";
+      updateLang();
+    });
+
+    // ==================== EDIT MODE ====================
+    editModeBtn.addEventListener("click", () => {
+      isEditMode = !isEditMode;
+      body.classList.toggle("edit-mode-active", isEditMode);
+      editModeBtn.classList.toggle("edit-btn-active", isEditMode);
+      
+      if (isEditMode) {
+        showToast("Edit Mode ON: Click an image to change it.", "success");
+      } else {
+        showToast("Edit Mode OFF", "success");
+      }
+    });
+
+    function changeItemImage(itemId) {
+      if (!isEditMode) return;
+      
+      const item = menuItems.find(i => i.id === itemId);
+      if (!item) return;
+
+      const newUrl = prompt("Enter new image URL:", item.image);
+      
+      if (newUrl !== null && newUrl.trim() !== "") {
+        item.image = newUrl;
+        renderMenu();
+        showToast("Image updated!");
+      }
+    }
+
+    // ==================== CATEGORIES ====================
+    function renderCategories() {
+      categoryTabs.innerHTML = categories.map(c => `
+        <button class="tab-btn flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-[var(--border)] text-sm font-medium whitespace-nowrap shadow-sm ${currentCategory === c.id ? "active" : ""}" data-cat="${c.id}">
+          <span>${c.emoji}</span>
+          <span>${c[t("name")]}</span>
+        </button>
+      `).join("");
+    }
+
+    categoryTabs.addEventListener("click", e => {
+      const btn = e.target.closest("[data-cat]");
+      if (btn) {
+        currentCategory = btn.dataset.cat;
+        renderCategories();
+        if (currentCategory === "branches") {
+          menuSection.classList.add("hidden");
+          branchesSection.classList.remove("hidden");
+          renderBranches();
+        } else {
+          menuSection.classList.remove("hidden");
+          branchesSection.classList.add("hidden");
+          renderMenu();
+        }
+      }
+    });
+
+    // ==================== MENU ====================
+    function renderMenu() {
+      const items = currentCategory === "deals" ? menuItems : menuItems.filter(i => i.category === currentCategory);
+      
+      menuSection.innerHTML = items.map((item, i) => `
+        <article class="menu-card animate-slide-up stagger-${(i % 3) + 1} bg-white rounded-2xl overflow-hidden shadow-md border border-[var(--border)]">
+          <div class="flex">
+            <div class="w-28 h-28 flex-shrink-0 overflow-hidden relative">
+              <img src="${item.image}" alt="${item[t("name")]}" class="food-img w-full h-full object-cover" data-id="${item.id}">
+              ${isEditMode ? `<div class="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none"><span class="text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">Change</span></div>` : ''}
+            </div>
+            <div class="flex-1 p-3 flex flex-col justify-between">
+              <div>
+                <div class="flex items-start justify-between gap-2">
+                  <h3 class="font-semibold text-base leading-tight">${item[t("name")]}</h3>
+                  ${item.badge ? `<span class="badge-${item.badge} px-2 py-0.5 rounded text-[10px] font-bold uppercase">${item.badge === "hot" ? (currentLang === "ar" ? "حار" : "Hot") : (currentLang === "ar" ? "الأفضل" : "Best")}</span>` : ""}
+                </div>
+                <p class="text-xs text-[var(--muted)] mt-1 line-clamp-2">${item[t("desc")]}</p>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="price-tag px-3 py-1 rounded-lg font-bold text-sm">${item.price} AED</span>
+                <button class="add-btn btn-primary px-3 py-1.5 rounded-lg text-xs font-semibold" data-id="${item.id}">
+                  <span>${currentLang === "ar" ? "أضف" : "Add"}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    menuSection.addEventListener("click", e => {
+      // Handle Image Change
+      const img = e.target.closest(".food-img");
+      if (img && isEditMode) {
+        e.stopPropagation();
+        changeItemImage(parseInt(img.dataset.id));
+        return;
+      }
+
+      // Handle Add to Cart
+      const btn = e.target.closest(".add-btn");
+      if (btn && !isEditMode) {
+        addToCart(parseInt(btn.dataset.id));
+      }
+    });
+
+    // ==================== BRANCHES ====================
+    function renderBranches() {
+      branchesList.innerHTML = branches.map(b => `
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-[var(--border)] flex items-center justify-between">
+          <div>
+            <p class="font-semibold">${b[t("name")]}</p>
+            <p class="text-xs text-[var(--muted)]">${b[t("area")]}</p>
+          </div>
+          <a href="${b.url}" target="_blank" class="btn-red px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:shadow-md transition-shadow">
+            ${currentLang === "ar" ? "اطلب الآن" : "Order Now"}
+          </a>
+        </div>
+      `).join("");
+    }
+
+    // ==================== CART ====================
+    function addToCart(id) {
+      const item = menuItems.find(i => i.id === id);
+      if (!item) return;
+      
+      const existing = cart.find(c => c.id === id);
+      if (existing) existing.qty++;
+      else cart.push({ ...item, qty: 1 });
+      
+      updateCart();
+      showToast(currentLang === "ar" ? `تمت إضافة ${item.name_ar}` : `${item.name_en} added`);
+    }
+
+    function updateQty(id, delta) {
+      const item = cart.find(c => c.id === id);
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) cart = cart.filter(c => c.id !== id);
+      updateCart();
+    }
+
+    function updateCart() {
+      const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+      const subTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+      
+      cartCount.textContent = totalItems;
+      cartCount.classList.toggle("hidden", totalItems === 0);
+      
+      floatingOrder.classList.toggle("hidden", totalItems === 0);
+      floatingOrder.classList.toggle("flex", totalItems > 0);
+      floatingText.textContent = `${totalItems} ${currentLang === "ar" ? "عناصر" : "items"} - ${subTotal} AED`;
+      
+      emptyCart.classList.toggle("hidden", cart.length > 0);
+      cartItems.classList.toggle("hidden", cart.length === 0);
+      cartSummary.classList.toggle("hidden", cart.length === 0);
+      
+      cartItems.innerHTML = cart.map(item => `
+        <div class="flex gap-3 p-3 bg-[var(--bg-alt)] rounded-xl">
+          <img src="${item.image}" class="w-16 h-16 rounded-lg object-cover">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-sm truncate">${item[t("name")]}</p>
+            <p class="text-[var(--brand-red)] font-bold text-sm">${item.price} AED</p>
+            <div class="flex items-center gap-1 mt-1">
+              <button class="qty-btn w-7 h-7 rounded-lg bg-white border border-[var(--border)] flex items-center justify-center text-sm font-bold" data-id="${item.id}" data-action="-">-</button>
+              <span class="w-8 text-center text-sm font-semibold">${item.qty}</span>
+              <button class="qty-btn w-7 h-7 rounded-lg bg-white border border-[var(--border)] flex items-center justify-center text-sm font-bold" data-id="${item.id}" data-action="+">+</button>
+            </div>
+          </div>
+          <button class="text-[var(--muted)] hover:text-[var(--brand-red)] p-1" data-id="${item.id}" data-action="x">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      `).join("");
+      
+      subtotal.textContent = `${subTotal} AED`;
+      totalPrice.textContent = `${subTotal} AED`;
+    }
+
+    cartItems.addEventListener("click", e => {
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+      const id = parseInt(btn.dataset.id);
+      const action = btn.dataset.action;
+      if (action === "+") updateQty(id, 1);
+      else if (action === "-") updateQty(id, -1);
+      else if (action === "x") { cart = cart.filter(c => c.id !== id); updateCart(); }
+    });
+
+    // ==================== DRAWER ====================
+    function openCart() {
+      cartDrawer.classList.add("open");
+      cartOverlay.style.opacity = "1";
+      cartOverlay.style.pointerEvents = "auto";
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeCartDrawer() {
+      cartDrawer.classList.remove("open");
+      cartOverlay.style.opacity = "0";
+      cartOverlay.style.pointerEvents = "none";
+      document.body.style.overflow = "";
+    }
+
+    cartBtn.addEventListener("click", openCart);
+    floatingOrder.addEventListener("click", openCart);
+    closeCart.addEventListener("click", closeCartDrawer);
+    cartOverlay.addEventListener("click", closeCartDrawer);
+
+    // ==================== CHECKOUT ====================
+    checkoutBtn.addEventListener("click", () => {
+      if (cart.length === 0) { showToast(currentLang === "ar" ? "السلة فارغة" : "Cart is empty", "error"); return; }
+      
+      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+      let msg = currentLang === "ar" ? "*طلب جديد من Crispy Chicken UAE*\n\n" : "*New Order from Crispy Chicken UAE*\n\n";
+      cart.forEach(i => msg += `• ${i[t("name")]} x${i.qty} - ${i.price * i.qty} AED\n`);
+      msg += currentLang === "ar" ? `\nالإجمالي: ${total} AED` : `\nTotal: ${total} AED`;
+      
+      // Updated WhatsApp Number
+      window.open(`https://wa.me/971501882206?text=${encodeURIComponent(msg)}`, "_blank");
+    });
+
+    // ==================== INIT ====================
+    renderCategories();
+    renderMenu();
+  </script>
+</body>
+</html>
